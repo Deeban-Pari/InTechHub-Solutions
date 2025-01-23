@@ -1,0 +1,49 @@
+﻿@page "/products/edit/{id:int}"
+@using BlazorApp.Models
+@using BlazorApp.Services
+@inject ProductService ProductService
+@inject NavigationManager NavigationManager
+
+<h3>Edit Product</h3>
+
+@if (product == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input id="name" class="form-control" @bind="product.Name" />
+    </div>
+    <div class="form-group">
+        <label for="price">Price</label>
+        <input id="price" class="form-control" type="number" @bind="product.Price" />
+    </div>
+
+    <button class="btn btn-primary" @onclick="UpdateProduct">Save</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Product product;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetProductAsync(id);
+    }
+
+    private async Task UpdateProduct()
+    {
+        await ProductService.UpdateProductAsync(product);
+        NavigationManager.NavigateTo("/products");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+}

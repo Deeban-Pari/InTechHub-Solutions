@@ -1,0 +1,6 @@
+@InTechHub_HostAddress = http://localhost:5187
+
+GET {{InTechHub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
