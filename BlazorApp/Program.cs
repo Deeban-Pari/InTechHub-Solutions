@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient("API", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7080/"); // Replace with your Web API URL
+    client.BaseAddress = new Uri("https://localhost:7080/");
 });
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
 

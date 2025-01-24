@@ -1,7 +1,6 @@
 ﻿using InTechHub.Models;
-using Microsoft.AspNetCore.Http;
+using InTechHub.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace InTechHub.Controllers
 {
@@ -9,32 +8,34 @@ namespace InTechHub.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductContext _context;
-        public ProductsController(ProductContext context)
+        private readonly IProductRepository _productRepository;
+
+        public ProductsController(IProductRepository productRepository)
         {
-                _context = context;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _productRepository.GetAllAsync();
+            return Ok(products);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
                 return NotFound();
-            return product;
+            return Ok(product);
         }
 
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _productRepository.AddAsync(product);
+            await _productRepository.SaveChangesAsync();
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
@@ -44,8 +45,8 @@ namespace InTechHub.Controllers
             if (id != product.Id)
                 return BadRequest();
 
-            _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _productRepository.Update(product);
+            await _productRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -53,12 +54,12 @@ namespace InTechHub.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
                 return NotFound();
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            _productRepository.Remove(product);
+            await _productRepository.SaveChangesAsync();
 
             return NoContent();
         }
